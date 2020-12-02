@@ -1,6 +1,8 @@
-# New Project
+# A WIP example of fast refresh inside a Phaser game
 
-> ✨ Bootstrapped with Create Snowpack App (CSA).
+```
+git clone 
+```
 
 ## Available Scripts
 
