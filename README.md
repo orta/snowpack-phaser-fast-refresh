@@ -1,8 +1,16 @@
 # A WIP example of fast refresh inside a Phaser game
 
+```sh
+# Setup
+git clone https://github.com/orta/snowpack-phaser-fast-refresh
+cd snowpack-phaser-fast-refresh
+pnpm i
+
+# Start
+pnpm start
 ```
-git clone 
-```
+
+Then look at [`src/Scene.ts`](./src/Scene.ts).
 
 ## Available Scripts
 
