@@ -46,7 +46,7 @@ export let ExampleScene = class ExampleScene extends StateScene<State> {
     //  Create 300 sprites (they all start life at 0x0)
     const gConfig: Phaser.Types.GameObjects.Group.GroupCreateConfig = {
       key: 'orb-red',
-      frameQuantity: 300,
+      frameQuantity: 10,
     };
     const randoSprites = this.add.group(gConfig);
 
