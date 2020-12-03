@@ -1,19 +1,14 @@
 import Phaser  from 'phaser';
+import { StateScene } from './StateScene';
 
 interface State {
-  objs?: Phaser.GameObjects.Group;
   draggable?: Phaser.GameObjects.Sprite;
   count: number;
 }
 
-export let ExampleScene = class ExampleScene extends Phaser.Scene {
-  state: State;
-
+export let ExampleScene = class ExampleScene extends StateScene<State> {
   constructor(config: string | Phaser.Types.Scenes.SettingsConfig, state: State) {
-    super(config);
-    // @ts-ignore
-    state._config = config;
-    this.state = state;
+    super(config, state)
   }
 
   preload() {
@@ -22,12 +17,14 @@ export let ExampleScene = class ExampleScene extends Phaser.Scene {
   }
 
   create() {
-    console.log(this.state);
+    // Re-use the x, y from state instead of any position
     const dx = this.state.draggable?.x || 20;
     const dy = this.state.draggable?.y || 20;
 
+    // Just a shape which you can drag anywhere which 
+    // should retain its position across the 
     const draggable = this.add.sprite(dx, dy, 'orb');
-    var shape = new Phaser.Geom.Circle(20, 20, 20);
+    const shape = new Phaser.Geom.Circle(20, 20, 20);
     draggable.setInteractive(shape, Phaser.Geom.Circle.Contains);
     this.input.setDraggable(draggable);
 
@@ -39,13 +36,10 @@ export let ExampleScene = class ExampleScene extends Phaser.Scene {
       draggable.clearTint();
     });
 
-    draggable.on(
-      'drag',
-      function (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
-        draggable.x = dragX;
-        draggable.y = dragY;
-      },
-    );
+    draggable.on('drag', (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+      draggable.x = dragX;
+      draggable.y = dragY;
+    });
 
     this.state.draggable = draggable;
 
@@ -54,12 +48,11 @@ export let ExampleScene = class ExampleScene extends Phaser.Scene {
       key: 'orb-red',
       frameQuantity: 300,
     };
-    this.state.objs = this.add.group(gConfig);
-
-    var circle = new Phaser.Geom.Circle(200, 300, 130);
+    const randoSprites = this.add.group(gConfig);
 
     //  Randomly position the sprites within the circle
-    Phaser.Actions.RandomCircle(this.state.objs.getChildren(), circle);
+    const circle = new Phaser.Geom.Circle(200, 300, 130);
+    Phaser.Actions.RandomCircle(randoSprites.getChildren(), circle);
   }
 };
 
@@ -69,15 +62,20 @@ if (import.meta.hot) {
     const thisML: typeof import('.') = module as any;
     try {
       // @ts-ignore
+      // Pull out the main game instance to grab all the active scenes
       const game = window.game as Phaser.Game;
       const scenes = game.scene.getScenes();
 
+      // Find any which match the current scene
       const theseScenes = scenes.filter((s) => s instanceof ExampleScene);
-      console.log(theseScenes);
+
+      // Change this modules version of the Example Scene class
       // @ts-ignore
       ExampleScene = thisML.ExampleScene;
 
-      theseScenes.forEach((s) => {
+      // Loop through all the known scenes and then delete and restart
+      // the scene with the same state 
+      theseScenes.forEach(s => {
         const sceneAny = s as any;
         const config = sceneAny.state._config;
         const key = typeof config === 'string' ? config : config.key;
@@ -87,11 +85,10 @@ if (import.meta.hot) {
         game.scene.add(key, new ExampleScene(config, state), true);
       });
 
-      console.log('Swapped');
     } catch (err) {
-      console.error(err);
       // If you have trouble accepting an update, mark it as invalid (reload the page).
-      // import.meta.hot.invalidate();
+      console.error(err);
+      import.meta.hot.invalidate();
     }
   });
   // Optionally, clean up any side-effects in the module before loading a new copy.
