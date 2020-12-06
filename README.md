@@ -1,3 +1,5 @@
+This turned into: https://github.com/orta/snowpack-plugin-hmr-phaser
+
 # A WIP example of fast refresh inside a Phaser game
 
 ![./video.gif](./video.gif)
